@@ -7,6 +7,7 @@ from schemas.UniversityCreate import UniversityCreate
 from schemas.UniversityResponse import UniversityResponse
 from schemas.UniversityUpdate import UniversityUpdate
 from schemas.UniversityWithReviews import UniversityWithReviews
+from schemas.TopUniversitiesResponse import TopUniversityResponse
 
 from crud.university import (
     get_all_universities,
@@ -14,7 +15,8 @@ from crud.university import (
     create_university,
     update_university,
     delete_university,
-    search_universities
+    search_universities,
+    get_top_universities
 )
 
 router = APIRouter(
@@ -25,6 +27,12 @@ router = APIRouter(
 @router.get("/", response_model=list[UniversityResponse])
 def find_universities(db: Session = Depends(get_db)):
     return get_all_universities(db)
+
+@router.get("/top", response_model=list[TopUniversityResponse])
+def find_top_universities(
+    db: Session = Depends(get_db)
+):
+    return get_top_universities(db)
 
 @router.post("/", response_model=UniversityResponse)
 def create_university_route(

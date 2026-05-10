@@ -7,6 +7,28 @@ from schemas.UniversityUpdate import UniversityUpdate
 def get_all_universities(db: Session):
     return db.query(University).all()
 
+def get_top_universities(db: Session):
+    universities = db.query(University).all()
+    result = []
+    for university in universities:
+        if not university.reviews:
+            continue
+        average = sum(
+            review.rating for review in university.reviews
+        ) / len(university.reviews)
+        result.append({
+            "id": university.id,
+            "name": university.name,
+            "country": university.country,
+            "city": university.city,
+            "average_rating": round(average, 2)
+        })
+    result.sort(
+        key=lambda university: university["average_rating"],
+        reverse=True
+    )
+    return result
+
 def get_university_by_id(id: int, db: Session):
     university = db.query(University).filter(University.id == id).first()
     return university
