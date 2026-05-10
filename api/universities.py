@@ -6,6 +6,7 @@ from models.university import University
 from schemas.UniversityCreate import UniversityCreate
 from schemas.UniversityResponse import UniversityResponse
 from schemas.UniversityUpdate import UniversityUpdate
+from schemas.UniversityWithReviews import UniversityWithReviews
 
 from crud.university import (
     get_all_universities,
@@ -41,7 +42,7 @@ def search(
 ):
     return search_universities(db, name, country, city)
 
-@router.get("/{id}", response_model=UniversityResponse)
+@router.get("/{id}", response_model=UniversityWithReviews)
 def get_by_id(id: int, db: Session = Depends(get_db)):
     university = get_university_by_id(id, db)
 
@@ -50,7 +51,16 @@ def get_by_id(id: int, db: Session = Depends(get_db)):
             status_code=404,
             detail="University not found"
         )
-
+    average = None
+    if (university.reviews):
+        sum = 0
+        count = 0
+        for review in university.reviews:
+            sum += review.rating
+            count += 1
+        average = sum / count
+    
+    university.average_rating = round(average, 2) if average else None
     return university
 
 @router.put("/{id}", response_model=UniversityResponse)
