@@ -7,8 +7,10 @@ from schemas.UserCreate import UserCreate
 from schemas.UserResponse import UserResponse
 from schemas.UserLogin import UserLogin
 from utils.security import verify_password
-from utils.jwt import create_access_token
+from utils.jwt import create_access_token, create_refresh_token, decode_token
 from fastapi.security import OAuth2PasswordRequestForm
+
+import jwt
 
 from crud.user import (
     create_user,
@@ -64,11 +66,44 @@ def login(
             detail="Invalid credentials"
         )
 
-    access_token = create_access_token({
-        "sub": user.username
-    })
+    access_token = create_access_token(
+        {"sub": user.username},
+        expires_minutes=30
+    )
+
+    refresh_token = create_refresh_token(
+        {"sub": user.username},
+        expires_days=7
+    )
 
     return {
         "access_token": access_token,
+        "refresh_token": refresh_token,
         "token_type": "bearer"
     }
+
+@router.post("/refresh")
+def refresh_token(refresh_token: str):
+    try:
+        payload = decode_token(refresh_token)
+
+        if payload.get("type") != "refresh":
+            raise HTTPException(status_code=401, detail="Invalid token type")
+
+        username = payload.get("sub")
+
+        new_access_token = create_access_token(
+            {"sub": username},
+            expires_minutes=30
+        )
+
+        return {
+            "access_token": new_access_token,
+            "token_type": "bearer"
+        }
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Refresh token expired")
+
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
