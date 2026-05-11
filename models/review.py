@@ -10,4 +10,6 @@ class Review(Base):
     
     university_id = Column(Integer, ForeignKey("universities.id"))
     university = relationship("University", back_populates="reviews")
+    user_id = Column(Integer, ForeignKey("users.id"))
+    user = relationship("User", back_populates="reviews")
     

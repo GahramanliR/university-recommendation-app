@@ -51,7 +51,10 @@ def search(
     return search_universities(db, name, country, city)
 
 @router.get("/{id}", response_model=UniversityWithReviews)
-def get_by_id(id: int, db: Session = Depends(get_db)):
+def get_by_id(
+    id: int, 
+    db: Session = Depends(get_db)
+):
     university = get_university_by_id(id, db)
 
     if not university:
@@ -61,12 +64,9 @@ def get_by_id(id: int, db: Session = Depends(get_db)):
         )
     average = None
     if (university.reviews):
-        sum = 0
-        count = 0
-        for review in university.reviews:
-            sum += review.rating
-            count += 1
-        average = sum / count
+        average = sum(
+        review.rating for review in university.reviews
+        ) / len(university.reviews)
     
     university.average_rating = round(average, 2) if average else None
     return university
@@ -88,7 +88,10 @@ def update(
     return update_university(db, university, updated_data)
 
 @router.delete("/{id}")
-def delete(id: int, db: Session = Depends(get_db)):
+def delete(
+    id: int,
+    db: Session = Depends(get_db)
+):
     university = get_university_by_id(id, db)
 
     if not university:
