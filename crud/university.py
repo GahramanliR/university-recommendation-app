@@ -4,8 +4,14 @@ from models.university import University
 from schemas.UniversityCreate import UniversityCreate
 from schemas.UniversityUpdate import UniversityUpdate
 
-def get_all_universities(db: Session):
-    return db.query(University).all()
+def get_all_universities(
+    db: Session,
+    page: int,
+    limit: int
+):
+    skip = (page - 1) * limit
+    universities = db.query(University).offset(skip).limit(limit).all()
+    return universities
 
 def get_top_universities(db: Session):
     universities = db.query(University).all()
@@ -21,7 +27,8 @@ def get_top_universities(db: Session):
             "name": university.name,
             "country": university.country,
             "city": university.city,
-            "average_rating": round(average, 2)
+            "average_rating": round(average, 2),
+            "review_count": len(university.reviews)
         })
     result.sort(
         key=lambda university: university["average_rating"],

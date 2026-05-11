@@ -25,8 +25,12 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=list[UniversityResponse])
-def find_universities(db: Session = Depends(get_db)):
-    return get_all_universities(db)
+def find_universities(
+    db: Session = Depends(get_db),
+    page: int = 1,
+    limit: int = 10
+):
+    return get_all_universities(db, page, limit)
 
 @router.get("/top", response_model=list[TopUniversityResponse])
 def find_top_universities(

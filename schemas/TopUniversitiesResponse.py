@@ -6,6 +6,7 @@ class TopUniversityResponse(BaseModel):
     country: str
     city: str
     average_rating: float
+    review_count: int
     
     class Config:
         from_attributes = True
