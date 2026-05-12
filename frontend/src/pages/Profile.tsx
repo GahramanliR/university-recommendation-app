@@ -49,7 +49,7 @@ function EditReviewModal({
           </button>
         </div>
 
-        <p className="text-sm text-slate-400 mb-4">{review.university.name}</p>
+        <p className="text-sm text-slate-400 mb-4">{review.university?.name ?? "Unknown university"}</p>
 
         <form onSubmit={handleSave} className="flex flex-col gap-4">
           {error && <ErrorMessage message={error} />}
@@ -86,6 +86,12 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [editingReview, setEditingReview] = useState<Review | null>(null);
+
+  // debugging
+
+  useEffect(() => {
+    console.log("PROFILE DATA:", profile);
+  }, [profile]);
 
   const fetchProfile = async () => {
     try {
@@ -168,12 +174,15 @@ export default function Profile() {
             <p className="text-xs text-slate-500 mt-0.5">Avg rating given</p>
           </div>
           <div>
-            <p className="text-2xl font-bold text-white">
-              {profile?.reviews
-                ? new Set(profile.reviews.map(r => r.university.id)).size
-                : 0}
-            </p>
-            <p className="text-xs text-slate-500 mt-0.5">Universities reviewed</p>
+              <p className="text-2xl font-bold text-white">
+                {profile?.reviews
+                  ? new Set(
+                      profile.reviews
+                        .filter(r => r.university?.id)
+                        .map(r => r.university.id)
+                    ).size
+                  : 0}
+              </p>
           </div>
         </div>
       </div>
@@ -203,10 +212,10 @@ export default function Profile() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <Link
-                        to={`/universities/${review.university.id}`}
+                        to={`/universities/${review.university?.id}`}
                         className="font-semibold text-white hover:text-sky-400 transition-colors text-sm"
                       >
-                        {review.university.name}
+                        {review.university?.name ?? "Unknown university"}
                       </Link>
                       <div className="flex items-center gap-2 mt-1">
                         <StarRating rating={review.rating} size="sm" />

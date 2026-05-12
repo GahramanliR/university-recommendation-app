@@ -1,5 +1,6 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
+from models.review import Review
 from models.user import User
 from schemas.UserCreate import UserCreate
 
@@ -26,6 +27,8 @@ def get_user_by_username(
 ):
     return db.query(User).filter(User.username == username).first()
 
-def get_user_by_id(db: Session, user_id: int):
-    return db.query(User).filter(User.id == user_id).first()
-
+def get_user_by_id(db, user_id: int):
+    return db.query(User)\
+        .options(joinedload(User.reviews).joinedload(Review.university))\
+        .filter(User.id == user_id)\
+        .first()
