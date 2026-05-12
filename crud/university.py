@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from models.review import Review
 from models.university import University
 from schemas.UniversityCreate import UniversityCreate
 from schemas.UniversityUpdate import UniversityUpdate
@@ -12,29 +13,6 @@ def get_all_universities(
     skip = (page - 1) * limit
     universities = db.query(University).offset(skip).limit(limit).all()
     return universities
-
-def get_top_universities(db: Session):
-    universities = db.query(University).all()
-    result = []
-    for university in universities:
-        if not university.reviews:
-            continue
-        average = sum(
-            review.rating for review in university.reviews
-        ) / len(university.reviews)
-        result.append({
-            "id": university.id,
-            "name": university.name,
-            "country": university.country,
-            "city": university.city,
-            "average_rating": round(average, 2),
-            "review_count": len(university.reviews)
-        })
-    result.sort(
-        key=lambda university: university["average_rating"],
-        reverse=True
-    )
-    return result
 
 def get_university_by_id(id: int, db: Session):
     university = db.query(University).filter(University.id == id).first()
@@ -94,10 +72,82 @@ def update_university(
     return university
 
 def delete_university(
-    db: Session,
+    db: Session, 
     university: University
 ):
+    db.query(Review).filter(
+        Review.university_id == university.id
+    ).delete(synchronize_session=False)
+
     db.delete(university)
     db.commit()
     
-    return university
+def get_recommended_universities(db: Session):
+    universities = db.query(University).all()
+    result = []
+    all_reviews = []
+
+    for university in universities:
+        for review in university.reviews:
+            all_reviews.append(review.rating)
+
+    if not all_reviews:
+        return []
+
+    C = sum(all_reviews) / len(all_reviews)
+    
+    m = 5
+
+    for university in universities:
+        v = len(university.reviews)
+        if v == 0:
+            continue
+        R = (
+            sum(review.rating for review in university.reviews)
+            / v
+        )
+        score = (
+            (v / (v + m)) * R
+            +
+            (m / (v + m)) * C
+        )
+        result.append({
+            "id": university.id,
+            "name": university.name,
+            "country": university.country,
+            "city": university.city,
+            "average_rating": round(R, 2),
+            "review_count": v,
+            "recommendation_score": round(score, 2)
+        })
+    result.sort(
+        key=lambda x: x["recommendation_score"],
+        reverse=True
+    )
+
+    return result
+
+def get_university_intelligence(db: Session, university_id: int):
+    university = db.query(University).filter(University.id == university_id).first()
+
+    if not university:
+        return None
+
+    reviews = university.reviews
+
+    if not reviews:
+        return {
+            "id": university.id,
+            "name": university.name,
+            "internal_average_rating": None,
+            "final_score": None
+        }
+
+    internal_avg = sum(r.rating for r in reviews) / len(reviews)
+
+    return {
+        "id": university.id,
+        "name": university.name,
+        "internal_average_rating": round(internal_avg, 2),
+        "final_score": round(internal_avg, 2)
+    }

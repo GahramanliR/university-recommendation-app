@@ -2,16 +2,36 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from models.review import Review
+from models.university import University
 from schemas.ReviewCreate import ReviewCreate
 from schemas.ReviewUpdate import ReviewUpdate
 from utils.dependencies import get_current_user
 from models.user import User
+from crud.university import get_university_by_id
 
 def create_review(
     db: Session,
     review_data: ReviewCreate,
     user_id: int
 ):
+    university = db.query(University).filter(
+        University.id == review_data.university_id
+    ).first()
+
+    if not university:
+        raise HTTPException(
+            status_code=404,
+            detail="University not found"
+        )
+    review_exists = db.query(Review).filter(
+        Review.user_id == user_id, 
+        Review.university_id == review_data.university_id
+    ).first()
+    if review_exists:
+        raise HTTPException(
+            status_code=400,
+            detail="You already reviewed this university"
+        )
     new_review = Review(
         rating=review_data.rating,
         comment=review_data.comment,

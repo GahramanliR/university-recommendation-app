@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from crud.university import get_university_by_id
 from database import get_db
 from models.review import Review
 from schemas.ReviewCreate import ReviewCreate
@@ -29,6 +30,12 @@ def get_reviews(
     university_id: int,
     db: Session = Depends(get_db)
 ):
+    university = get_university_by_id(university_id, db)
+    if not university:
+        raise HTTPException(
+            status_code=404,
+            detail="University not found"
+        )
     return get_reviews_by_university(db, university_id)
 
 @router.put("/{review_id}")

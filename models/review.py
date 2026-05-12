@@ -1,5 +1,6 @@
 from database import Base
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from datetime import datetime
 from sqlalchemy.orm import relationship
 
 class Review(Base):
@@ -7,6 +8,12 @@ class Review(Base):
     id = Column(Integer, primary_key=True, index=True)
     rating = Column(Integer)
     comment = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow
+    )
     
     university_id = Column(Integer, ForeignKey("universities.id"))
     university = relationship("University", back_populates="reviews")
