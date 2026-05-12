@@ -182,7 +182,7 @@ export default function Profile() {
       <div>
         <h2 className="text-lg font-semibold text-white mb-4">Your Reviews</h2>
 
-        {profile?.reviews.length === 0 ? (
+        {(profile?.reviews?.length ?? 0) === 0 ? (
           <div className="card p-8 text-center text-slate-500">
             <svg className="w-10 h-10 mx-auto mb-3 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -194,7 +194,7 @@ export default function Profile() {
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {profile?.reviews.map((review) => {
+            {profile?.reviews?.map((review) => {
               const date = review.created_at
                 ? new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
                 : null;
