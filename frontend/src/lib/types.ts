@@ -22,13 +22,6 @@ export interface UniversityRecommendation extends University {
   recommendation_score: number;
 }
 
-export interface UniversityIntelligence {
-  id: number;
-  name: string;
-  internal_average_rating: number | null;
-  final_score: number | null;
-}
-
 export interface UserMini {
   id: number;
   username: string;

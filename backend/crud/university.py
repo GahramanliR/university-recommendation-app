@@ -126,28 +126,3 @@ def get_recommended_universities(db: Session):
     )
 
     return result
-
-def get_university_intelligence(db: Session, university_id: int):
-    university = db.query(University).filter(University.id == university_id).first()
-
-    if not university:
-        return None
-
-    reviews = university.reviews
-
-    if not reviews:
-        return {
-            "id": university.id,
-            "name": university.name,
-            "internal_average_rating": None,
-            "final_score": None
-        }
-
-    internal_avg = sum(r.rating for r in reviews) / len(reviews)
-
-    return {
-        "id": university.id,
-        "name": university.name,
-        "internal_average_rating": round(internal_avg, 2),
-        "final_score": round(internal_avg, 2)
-    }

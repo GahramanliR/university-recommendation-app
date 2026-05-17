@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from models.university import University
-from schemas.UniversityIntelligence import UniversityIntelligence
 from schemas.UniversityCreate import UniversityCreate
 from schemas.UniversityResponse import UniversityResponse
 from schemas.UniversityUpdate import UniversityUpdate
@@ -13,7 +12,6 @@ from crud.university import (
     get_all_universities,
     get_university_by_id,
     create_university,
-    get_university_intelligence,
     update_university,
     delete_university,
     search_universities,
@@ -159,12 +157,3 @@ def delete(
     delete_university(db, university)
 
     return {"message": "Deleted successfully"}
-    
-@router.get("/{id}/intelligence", response_model=UniversityIntelligence)
-def university_intelligence(id: int, db: Session = Depends(get_db)):
-    data = get_university_intelligence(db, id)
-
-    if not data:
-        raise HTTPException(status_code=404, detail="University not found")
-
-    return data

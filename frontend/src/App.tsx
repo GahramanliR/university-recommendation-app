@@ -8,7 +8,6 @@ import Discover from './pages/Discover';
 import Search from './pages/Search';
 import Recommendations from './pages/Recommendations';
 import UniversityDetail from './pages/UniversityDetail';
-import Intelligence from './pages/Intelligence';
 import Profile from './pages/Profile';
 
 export default function App() {
@@ -26,7 +25,6 @@ export default function App() {
               <Route path="/search" element={<Search />} />
               <Route path="/recommendations" element={<Recommendations />} />
               <Route path="/universities/:id" element={<UniversityDetail />} />
-              <Route path="/universities/:id/intelligence" element={<Intelligence />} />
               <Route
                 path="/profile"
                 element={
