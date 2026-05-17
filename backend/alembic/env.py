@@ -3,7 +3,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-from database import Base
+from backend.database import Base
 from models.university import University
 from models.review import Review
 from models.user import User
